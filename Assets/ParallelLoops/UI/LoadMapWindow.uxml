@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/ParallelLoops/UI/LoadMapWindow.uss?fileID=7433441132597879392&amp;guid=7a29f7037db791841bc40f50dfe649a9&amp;type=3#LoadMapWindow" />
+    <ui:Label text="Load Map" style="-unity-text-align: upper-center; -unity-font-style: bold; font-size: 16px;" />
+    <ui:GroupBox style="flex-direction: row;">
+        <ui:DropdownField label="Section" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="sectionDropdown" style="flex-direction: column; -unity-text-align: upper-center;" />
+        <ui:DropdownField label="Map" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="mapDropdown" style="flex-direction: column; -unity-text-align: upper-center;" />
+    </ui:GroupBox>
+    <ui:Button tabindex="-1" text="Load" display-tooltip-when-elided="true" name="mapLoadButton" />
+</ui:UXML>
