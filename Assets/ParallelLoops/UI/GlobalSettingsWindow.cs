@@ -41,8 +41,12 @@ public class GlobalSettingsWindow : EditorWindow
 
     public void OnDestroy()
     {
-        GlobalSettings.HeiretsuPath = m_HeiretsuDirectoryPath.text;
-        GlobalSettings.BlenderPath = m_BlenderPath.text;
+        if (GlobalSettings.HeiretsuPath != m_HeiretsuDirectoryPath.value)
+        {
+            GlobalSettings.HeiretsuPath = m_HeiretsuDirectoryPath.value;
+            GlobalSettings.SetUpWorkspace();
+        }
+        GlobalSettings.BlenderPath = m_BlenderPath.value;
         GlobalSettings.SaveSettings();
     }
 }

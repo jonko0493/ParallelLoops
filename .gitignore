@@ -3,6 +3,7 @@ Library/
 Logs/
 obj/
 Packages/
+ParallelLoopsWorkspace/
 ProjectSettings/
 Temp/
 UIElementsSchema/
@@ -12,7 +13,6 @@ Assembly-CSharp.csproj
 TestProject.sln
 Assets/Plugins/
 Assets/Scenes/
-Assets/Models/
-Assets/Textures
+Assets/Resources/
 *.meta
 UnityDefaultRuntimeTheme.tss

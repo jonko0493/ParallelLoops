@@ -17,42 +17,28 @@ namespace ParallelLoops.Importers
         {
             if (string.IsNullOrEmpty(GlobalSettings.HeiretsuPath) || string.IsNullOrEmpty(GlobalSettings.BlenderPath))
             {
-                UnityEngine.Debug.Log("Go into Parallel Loops > Settings and set the Heiretsu Game Directory and Blender Path.");
+                UnityEngine.Debug.LogError("Go into Parallel Loops > Settings and set the Heiretsu Game Directory and Blender Path.");
+                return;
             }
 
             string pythonSgeScript = Path.GetFullPath("Assets/ParallelLoops/Importers/sge_import.py");
 
             var outputFbxs = new List<string>();
 
-            if (GlobalSettings.GrpBin is null)
-            {
-                UnityEngine.Debug.Log("Loading grp.bin for the first time this session...");
-                GlobalSettings.GrpBin = BinArchive<GraphicsFile>.FromFile(Path.Combine(GlobalSettings.HeiretsuPath, "grp.bin"));
-            }
-            if (GlobalSettings.DatBin is null)
-            {
-                UnityEngine.Debug.Log("Loading dat.bin for the first time this session...");
-                GlobalSettings.DatBin = BinArchive<DataFile>.FromFile(Path.Combine(GlobalSettings.HeiretsuPath, "dat.bin"));
-            }
+            string[] files = Directory.GetFiles(Path.Combine(GlobalSettings.WorkspacePath, "grp"));
 
-            byte[] graphicsFileNameMap = GlobalSettings.DatBin.Files.First(f => f.Index == 8).GetBytes();
-            int numGraphicsFiles = BitConverter.ToInt32(graphicsFileNameMap.Skip(0x10).Take(4).Reverse().ToArray());
-
-            var indexToNameMap = new Dictionary<int, string>();
-            for (int i = 0; i < numGraphicsFiles; i++)
+            if (GlobalSettings.SgeCache is null)
             {
-                indexToNameMap.Add(BitConverter.ToInt32(graphicsFileNameMap.Skip(0x14 * (i + 1)).Take(4).Reverse().ToArray()), Encoding.ASCII.GetString(graphicsFileNameMap.Skip(0x14 * (i + 1) + 0x04).TakeWhile(b => b != 0x00).ToArray()));
-            }
-
-            foreach (GraphicsFile file in GlobalSettings.GrpBin.Files)
-            {
-                file.TryResolveName(indexToNameMap);
-            }
-            foreach (GraphicsFile file in GlobalSettings.GrpBin.Files)
-            {
-                if (file.FileType == GraphicsFile.GraphicsFileType.SGE)
+                GlobalSettings.SgeCache = new();
+                foreach (string file in files)
                 {
-                    file.Sge.ResolveTextures(file.Name, GlobalSettings.GrpBin.Files);
+                    if (Path.GetExtension(file).Equals(".sge", StringComparison.OrdinalIgnoreCase))
+                    {
+                        GraphicsFile sgeFile = new();
+                        sgeFile.Initialize(File.ReadAllBytes(file), 0);
+                        GlobalSettings.SgeCache.Add(sgeFile);
+                        sgeFile.Sge.ResolveTextures(Path.GetFileNameWithoutExtension(file)[5..], files);
+                    }
                 }
             }
 
@@ -62,46 +48,53 @@ namespace ParallelLoops.Importers
                 Directory.CreateDirectory(sgeDir);
             }
 
-            if (!Directory.Exists("Assets/Models"))
+            if (!Directory.Exists("Assets/Resources/Models"))
             {
-                Directory.CreateDirectory("Assets/Models");
+                Directory.CreateDirectory("Assets/Resources/Models");
             }
 
-            string[] existingModels = Directory.GetFiles("Assets/Models").Select(f => Path.GetFileNameWithoutExtension(f)).ToArray();
+            string[] existingModels = Directory.GetFiles("Assets/Resources/Models").Select(f => Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(f))).ToArray(); // twice to strip .sge.fbx
             modelNames = modelNames.Where(m => existingModels.All(e => m != e)).ToArray();
 
             foreach (string modelName in modelNames)
             {
                 string filePath = Path.Combine(sgeDir, $"{modelName}.sge");
-                File.WriteAllText($"{filePath}.json", GlobalSettings.GrpBin.Files.First(g => g.Name == modelName).Sge.DumpJson());
+                File.WriteAllText($"{filePath}.json", GlobalSettings.SgeCache.First(g => g.Sge.Name == modelName).Sge.DumpJson());
 
                 var blender = new Process() { StartInfo = new ProcessStartInfo(GlobalSettings.BlenderPath, $"--background -noaudio -P \"{pythonSgeScript}\" \"{filePath}.json\" fbx") };
                 blender.Start();
                 blender.WaitForExit();
                 outputFbxs.Add($"{filePath}.fbx");
             }
-            if (!Directory.Exists("Assets/Textures"))
+            if (!Directory.Exists("Assets/Resources/Textures"))
             {
-                Directory.CreateDirectory("Assets/Textures");
+                Directory.CreateDirectory("Assets/Resources/Textures");
             }
 
-            string[] existingTextures = Directory.GetFiles("Assets/Textures");
+            string[] existingTextures = Directory.GetFiles("Assets/Resources/Textures");
+            string tempTexDir = Path.Combine(Path.GetTempPath(), "ParallelLoops_Tex_Import");
 
             foreach (string outputFbx in outputFbxs)
             {
-                string assetPath = Path.Combine("Assets/Models", Path.GetFileName(outputFbx));
-                File.Move(outputFbx, assetPath);
+                string assetPath = Path.Combine("Assets/Resources/Models", Path.GetFileName(outputFbx));
+                File.Copy(outputFbx, assetPath, overwrite: true);
+                File.Delete(outputFbx);
                 AssetDatabase.ImportAsset(assetPath);
                 AssetImporter importer = AssetImporter.GetAtPath(assetPath);
                 ModelImporter modelImporter = importer as ModelImporter;
-                modelImporter.ExtractTextures("Assets/Textures");
+                modelImporter.ExtractTextures(tempTexDir);
+                foreach (string texFile in Directory.GetFiles(tempTexDir))
+                {
+                    File.Copy(texFile, Path.Combine("Assets/Resources/Textures", Path.GetFileName(texFile)), overwrite: true);
+                    File.Delete(texFile);
+                }
             }
 
-            string[] newTextures = Directory.GetFiles("Assets/Textures").Where(t => existingTextures.All(e => t != e)).ToArray();
+            string[] newTextures = Directory.GetFiles("Assets/Resources/Textures").Where(t => existingTextures.All(e => t != e)).ToArray();
             
             foreach (string newTexture in newTextures)
             {
-                AssetDatabase.ImportAsset(Path.Combine("Assets/Textures", Path.GetFileName(newTexture)));
+                AssetDatabase.ImportAsset(Path.Combine("Assets/Resources/Textures", Path.GetFileName(newTexture)));
             }
         }
     }
