@@ -10,7 +10,7 @@ UIElementsSchema/
 UserSettings/
 .vsconfig
 Assembly-CSharp.csproj
-TestProject.sln
+*.sln
 Assets/Plugins*
 Assets/Scenes*
 Assets/Resources*
