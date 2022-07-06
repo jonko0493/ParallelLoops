@@ -32,8 +32,7 @@ namespace ParallelLoops
         {
             if (!LoadSettings())
             {
-                GlobalSettingsWindow globalSettingsWindow = EditorWindow.CreateWindow<GlobalSettingsWindow>();
-                globalSettingsWindow.Show();
+                GlobalSettingsWindow.ShowExample();
             }
         }
 
@@ -53,6 +52,11 @@ namespace ParallelLoops
                     {
                         BlenderPath = line.Split("=")[1].Trim();
                     }
+                }
+
+                if (string.IsNullOrEmpty(HeiretsuPath) || string.IsNullOrEmpty(BlenderPath))
+                {
+                    return false;
                 }
 
                 return true;

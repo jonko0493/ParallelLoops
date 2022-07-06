@@ -15,8 +15,14 @@ public class GlobalSettingsWindow : EditorWindow
         wnd.titleContent = new GUIContent("GlobalSettingsWindow");
     }
 
-    private static TextField m_HeiretsuDirectoryPath = new() { label = "Heiretsu Game Directory" };
-    private static TextField m_BlenderPath = new() { label = "Blender Executable" };
+    private static TextField m_HeiretsuDirectoryPath;
+    private static TextField m_BlenderPath;
+
+    public void OnEnable()
+    {
+        m_HeiretsuDirectoryPath = new() { label = "Heiretsu Game Directory" };
+        m_BlenderPath = new() { label = "Blender Executable" };
+    }
 
     public void CreateGUI()
     {
