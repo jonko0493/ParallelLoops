@@ -11,9 +11,8 @@ UserSettings/
 .vsconfig
 Assembly-CSharp.csproj
 TestProject.sln
-Assets/Plugins/
-Assets/Scenes/
-Assets/Resources/
-*.meta
-UnityDefaultRuntimeTheme.tss
-globalsettings.ini
+Assets/Plugins*
+Assets/Scenes*
+Assets/Resources*
+UnityDefaultRuntimeTheme.tss*
+globalsettings.ini*
