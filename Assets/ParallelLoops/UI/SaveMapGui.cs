@@ -11,7 +11,7 @@ using UnityEngine;
 
 public class SaveMapGui
 {
-    [MenuItem("Parallel Loops/Save Map", priority = 2)]
+    [MenuItem("Parallel Loops/Save Map", priority = 0)]
     public static void ShowExample()
     {
         string folderPath = EditorUtility.SaveFolderPanel("Save map data", "", "");
@@ -25,7 +25,9 @@ public class SaveMapGui
 
             (MapDefinitionsFile mapDefinitionsFile, CameraDataFile cameraDataFile) = MapAndCameraDataImporter.LoadMapAndCameraData();
             GraphicsFile loadedMap = new();
-            loadedMap.Initialize(File.ReadAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "grp", $"{mapDefinitionsFile.Sections[map.Section - 2].MapDefinitions[map.MapIndex].MapDataIndex}.bin")), 0);
+            int mapIndex = mapDefinitionsFile.Sections[map.Section - 2].MapDefinitions[map.MapIndex].MapDataIndex;
+            loadedMap.Initialize(File.ReadAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "grp", $"{mapIndex}.MAP")), 0);
+            loadedMap.Index = mapIndex;
 
             mapDefinitionsFile.Sections[map.Section - 2].MapDefinitions[map.MapIndex].CameraDataEntryIndex = (short)camera.CameraIndex;
             cameraDataFile.CameraDataEntries[camera.CameraIndex].XPosition = -camera.transform.position.x / Sge.MODEL_SCALE;
@@ -45,17 +47,27 @@ public class SaveMapGui
             {
                 if (int.TryParse(gameObject.name[0..3], out int mapEntryIndex))
                 {
+                    if (!gameObject.name.Contains("Precalculated_Vector", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        loadedMap.MapEntries[mapEntryIndex].Name = gameObject.name[4..].Trim();
+                    }
                     loadedMap.MapEntries[mapEntryIndex].X = -gameObject.transform.position.x / Sge.MODEL_SCALE;
                     loadedMap.MapEntries[mapEntryIndex].Y = -gameObject.transform.position.z / Sge.MODEL_SCALE;
                     loadedMap.MapEntries[mapEntryIndex].Z = gameObject.transform.position.y / Sge.MODEL_SCALE;
+                    short rotation = (short)(360 - (System.Math.Round(gameObject.transform.localRotation.eulerAngles.y) + 90));
+                    if (rotation > 180)
+                    {
+                        rotation -= 360;
+                    }
+                    loadedMap.MapEntries[mapEntryIndex].Rotation = rotation;
                 }
             }
 
             string[] datBinMap = File.ReadAllLines("Assets/ParallelLoops/Data/dat_bin_map.txt");
             string[] grpBinMap = File.ReadAllLines("Assets/ParallelLoops/Data/grp_bin_map.txt");
 
-            File.WriteAllText(Path.Combine(folderPath, $"{datBinMap.First(d => d.Contains($"dat-{mapDefinitionsFile.Index:D4}"))}.csv"), mapDefinitionsFile.GetCsv());
-            File.WriteAllText(Path.Combine(folderPath, $"{datBinMap.First(d => d.Contains($"dat-{cameraDataFile.Index:D4}"))}.csv"), cameraDataFile.GetCsv());
+            File.WriteAllText(Path.Combine(folderPath, $"{datBinMap.First(d => d.Contains($"dat-{GlobalSettings.MapDefFileIndex:D4}"))}.csv"), mapDefinitionsFile.GetCsv());
+            File.WriteAllText(Path.Combine(folderPath, $"{datBinMap.First(d => d.Contains($"dat-{GlobalSettings.CameraDataFileIndex:D4}"))}.csv"), cameraDataFile.GetCsv());
             string mapCsv = string.Join("\n", loadedMap.MapEntries.Select(e => e.GetCsvLine()));
             mapCsv = $"Model,X,Y,Z,Unknown0C,Unknown10,Unknown12,Unknown14,Unknown16,Unknown18,Unknown1A,Unknown1C,Unknown1E,Unknown20,Unknown22,Unknown24,Unknown26,Unknown28,Unknown2A\n{mapCsv}";
             File.WriteAllText(Path.Combine(folderPath, $"{grpBinMap.First(g => g.Contains($"grp-{loadedMap.Index:D4}"))}_map.csv"), mapCsv);

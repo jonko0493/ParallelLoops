@@ -139,7 +139,7 @@ namespace ParallelLoops
                 foreach (ScriptFile file in scrBin.Files)
                 {
                     file.Name = scriptIndexToNameMap[file.Index];
-                    File.WriteAllBytes(Path.Combine(WorkspacePath, "scr", $"{file.Index:D4}_{file.Name}"), file.Data.ToArray());
+                    File.WriteAllBytes(Path.Combine(WorkspacePath, "scr", $"{file.Index:D4}_{file.Name}.bin"), file.Data.ToArray());
                     EditorUtility.DisplayProgressBar("Setting Up Workspace", "Unpacking scr.bin...", (10 + 90 * (file.Index / (float)scrBin.Files.Count)) / 100f);
                 }
             }

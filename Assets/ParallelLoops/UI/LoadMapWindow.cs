@@ -15,7 +15,7 @@ public class LoadMapWindow : EditorWindow
     [SerializeField]
     private VisualTreeAsset m_VisualTreeAsset = default;
 
-    [MenuItem("Parallel Loops/Load Map", priority = 2)]
+    [MenuItem("Parallel Loops/Load Map", priority = 0)]
     public static void ShowExample()
     {
         LoadMapWindow wnd = GetWindow<LoadMapWindow>();
