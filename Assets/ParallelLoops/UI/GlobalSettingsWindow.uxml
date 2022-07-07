@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label tabindex="-1" text="Settings" display-tooltip-when-elided="true" style="-unity-text-align: upper-center; -unity-font-style: bold; font-size: 18px;" />
+    <ui:GroupBox name="heiretsuPathGroupBox" style="flex-direction: row;">
+        <ui:TextField picking-mode="Ignore" label="Heiretsu Directory" name="heiretsuPathTextField" style="width: 80%;" />
+        <ui:Button tabindex="-1" text="Open" display-tooltip-when-elided="true" name="heiretsuPathButton" />
+    </ui:GroupBox>
+    <ui:GroupBox name="blenderPathGroupBox" style="flex-direction: row;">
+        <ui:TextField picking-mode="Ignore" label="Blender Path" name="blenderPathTextField" style="width: 80%;" />
+        <ui:Button tabindex="-1" text="Open" display-tooltip-when-elided="true" name="blenderPathButton" />
+    </ui:GroupBox>
+    <ui:Button tabindex="-1" text="Save Settings" display-tooltip-when-elided="true" name="saveSettingsButton" />
+</ui:UXML>
