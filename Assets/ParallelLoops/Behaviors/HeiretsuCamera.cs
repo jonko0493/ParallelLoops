@@ -42,7 +42,7 @@ public class HeiretsuCamera : MonoBehaviour
                                 }
                             }
                         }
-                        File.WriteAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "dat", $"{mapDefinitionsFile.Index:D3}.bin"), mapDefinitionsFile.GetBytes());
+                        File.WriteAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "dat", $"{GlobalSettings.MapDefFileIndex:D4}.bin"), mapDefinitionsFile.GetBytes());
                         CameraIndex = cameraDataFile.StaticCameraIndex;
                         cameraDataFile.StaticCameraIndex++;
                     }
@@ -52,7 +52,7 @@ public class HeiretsuCamera : MonoBehaviour
                         cameraDataFile.CameraDataEntries.Add(new(cameraDataFile.CameraDataEntries[CameraIndex].GetCsvLine()));
                         CameraIndex = cameraDataFile.CameraDataEntries.Count - 1;
                     }
-                    File.WriteAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "dat", $"{cameraDataFile.Index:D3}.bin"), cameraDataFile.GetBytes());
+                    File.WriteAllBytes(Path.Combine(GlobalSettings.WorkspacePath, "dat", $"{GlobalSettings.CameraDataFileIndex:D4}.bin"), cameraDataFile.GetBytes());
                     break;
                 case 1:
                     IgnoreDialog = true;
